@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fullscreen Video with Early Fade-Out</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+        }
+
+        .fade-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: black;
+            opacity: 0;
+            transition: opacity 2s ease;
+            z-index: 1;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <video id="introVideo" autoplay muted>
+        <source src="videoconverted.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+
+    <div class="fade-overlay" id="fadeOverlay"></div>
+
+    <script>
+        const video = document.getElementById('introVideo');
+        const fadeOverlay = document.getElementById('fadeOverlay');
+
+        const fadeOutBeforeEnd = 2; // seconds before the end to start fade
+        let fadeStarted = false;
+
+        video.addEventListener('timeupdate', () => {
+            if (!fadeStarted && video.duration - video.currentTime <= fadeOutBeforeEnd) {
+                fadeStarted = true;
+                fadeOverlay.style.opacity = 1;
+
+                setTimeout(() => {
+                    window.location.href = 'https://ceiryu.tech/'; // Change to your target page
+                }, 2000); // Match with CSS fade time
+            }
+        });
+    </script>
+
+</body>
+</html>
