@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Fullscreen Video with Early Fade-Out</title>
+    <title>Video Crossfade</title>
     <style>
         html, body {
             margin: 0;
@@ -18,18 +18,19 @@
             width: 100vw;
             height: 100vh;
             object-fit: cover;
+            z-index: 0;
         }
 
-        .fade-overlay {
+        iframe {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: black;
+            border: none;
             opacity: 0;
             transition: opacity 2s ease;
-            z-index: 1;
+            z-index: 2;
             pointer-events: none;
         }
     </style>
@@ -41,23 +42,27 @@
         Your browser does not support the video tag.
     </video>
 
-    <div class="fade-overlay" id="fadeOverlay"></div>
+    <iframe id="nextPage" src="next-page.html"></iframe>
 
     <script>
         const video = document.getElementById('introVideo');
-        const fadeOverlay = document.getElementById('fadeOverlay');
+        const iframe = document.getElementById('nextPage');
 
-        const fadeOutBeforeEnd = 2; // seconds before the end to start fade
-        let fadeStarted = false;
+        const fadeOutBeforeEnd = 2; // seconds before end
+        let crossfadeStarted = false;
 
         video.addEventListener('timeupdate', () => {
-            if (!fadeStarted && video.duration - video.currentTime <= fadeOutBeforeEnd) {
-                fadeStarted = true;
-                fadeOverlay.style.opacity = 1;
+            if (!crossfadeStarted && video.duration - video.currentTime <= fadeOutBeforeEnd) {
+                crossfadeStarted = true;
 
+                // Fade in the next page (iframe)
+                iframe.style.opacity = 1;
+                iframe.style.pointerEvents = "auto";
+
+                // Optional: fully redirect after crossfade
                 setTimeout(() => {
-                    window.location.href = 'https://ceiryu.tech/'; // Change to your target page
-                }, 2000); // Match with CSS fade time
+                    window.location.href = 'https://egmceiryu.github.io/vista3d/';
+                }, 1500);
             }
         });
     </script>
