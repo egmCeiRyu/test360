@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Video Crossfade</title>
+    <meta charset="UTF-8" />
+    <title>Intro Video with Crossfade</title>
     <style>
         html, body {
             margin: 0;
@@ -11,58 +11,131 @@
             overflow: hidden;
         }
 
-        video {
+        .main-site {
+            opacity: 0;
+            transition: opacity 2s ease;
+            position: relative;
+            z-index: 1;
+            padding: 2rem;
+            font-family: sans-serif;
+        }
+
+            .main-site.visible {
+                opacity: 1;
+            }
+
+        #videoWrapper {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            object-fit: cover;
-            z-index: 0;
+            z-index: 2;
+            pointer-events: none;
+            transition: opacity 2s ease;
         }
 
-        iframe {
+            #videoWrapper.fade-out {
+                opacity: 0;
+            }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Black fade screen */
+        #blackOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: black;
+            opacity: 0;
+            z-index: 4;
+            pointer-events: none;
+            transition: opacity 1s ease;
+        }
+
+            #blackOverlay.visible {
+                opacity: 1;
+            }
+
+        /* Preloaded site in iframe (initially hidden) */
+        #preloadedSite {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
             border: none;
+            z-index: 0;
             opacity: 0;
-            transition: opacity 2s ease;
-            z-index: 2;
             pointer-events: none;
+            transition: opacity 1s ease;
         }
+
+            #preloadedSite.visible {
+                opacity: 1;
+                pointer-events: auto;
+                z-index: 5;
+            }
     </style>
 </head>
 <body>
 
-    <video id="introVideo" autoplay muted>
-        <source src="videoconverted.mp4" type="video/mp4">
-        Your browser does not support the video tag.
-    </video>
+    <!-- Preloaded Website (hidden) -->
+    <iframe id="preloadedSite" src="https://egmceiryu.github.io/vista3d/"></iframe>
 
-    <iframe id="nextPage" src="next-page.html"></iframe>
+    <!-- Intro Video -->
+    <div id="videoWrapper">
+        <video id="introVideo" autoplay muted>
+            <source src="videoconverted.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+        </video>
+    </div>
+
+    <!-- Black overlay for crossfade -->
+    <div id="blackOverlay"></div>
+
+    <!-- Your actual website content -->
+    <div class="main-site" id="mainContent"></div>
 
     <script>
-        const video = document.getElementById('introVideo');
-        const iframe = document.getElementById('nextPage');
+        const video = document.getElementById("introVideo");
+        const wrapper = document.getElementById("videoWrapper");
+        const mainContent = document.getElementById("mainContent");
+        const blackOverlay = document.getElementById("blackOverlay");
+        const preloadedSite = document.getElementById("preloadedSite");
 
-        const fadeOutBeforeEnd = 2; // seconds before end
-        let crossfadeStarted = false;
+        const fadeOutBeforeEnd = 4; // seconds before video ends
+        let fadeStarted = false;
 
-        video.addEventListener('timeupdate', () => {
-            if (!crossfadeStarted && video.duration - video.currentTime <= fadeOutBeforeEnd) {
-                crossfadeStarted = true;
+        video.addEventListener("timeupdate", () => {
+            const timeLeft = video.duration - video.currentTime;
+            if (!fadeStarted && timeLeft <= fadeOutBeforeEnd) {
+                fadeStarted = true;
 
-                // Fade in the next page (iframe)
-                iframe.style.opacity = 1;
-                iframe.style.pointerEvents = "auto";
+                // Fade out video
+                wrapper.classList.add("fade-out");
 
-                // Optional: fully redirect after crossfade
+                // Fade in black screen after a short delay
                 setTimeout(() => {
-                    window.location.href = 'https://egmceiryu.github.io/vista3d/';
-                }, 1500);
+                    blackOverlay.classList.add("visible");
+
+                    // Once black overlay is fully visible, reveal the preloaded site
+                    setTimeout(() => {
+                        preloadedSite.classList.add("visible");
+
+                        // Clean up: hide everything else
+                        wrapper.style.display = "none";
+                        mainContent.style.display = "none";
+                        blackOverlay.style.display = "none";
+
+                    }, 5); // wait for black overlay fade in
+                }, 100); // wait for video fade out
             }
         });
     </script>
